@@ -200,7 +200,14 @@ if __name__ == "__main__":
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
         
-    output_pdf_path = os.path.join(output_dir, f"research_report_{date_str}.pdf")
+    base_filename = f"research_report_{date_str}"
+    output_pdf_path = os.path.join(output_dir, f"{base_filename}.pdf")
+    
+    # Check for duplicate filenames and increments
+    counter = 1
+    while os.path.exists(output_pdf_path):
+        output_pdf_path = os.path.join(output_dir, f"{base_filename}_{counter}.pdf")
+        counter += 1
     
     print(f"\n--- Processing 'Additional Request': Generating PDF from {existing_report_path} ---")
     
