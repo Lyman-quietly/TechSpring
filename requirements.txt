@@ -1,0 +1,4 @@
+duckduckgo-search
+fpdf2
+openai
+python-dotenv
