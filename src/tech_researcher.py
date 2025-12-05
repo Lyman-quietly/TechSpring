@@ -1,5 +1,6 @@
 import os
 import json
+import markdown
 from datetime import datetime
 from duckduckgo_search import DDGS
 from fpdf import FPDF
@@ -105,77 +106,78 @@ class PDFGenerator:
         
         # Add a Japanese font
         # Try multiple common Windows fonts
+        # Pairs of (Regular, Bold)
         font_candidates = [
-            "C:\\Windows\\Fonts\\YuGothM.ttc",
-            "C:\\Windows\\Fonts\\meiryo.ttc",
-            "C:\\Windows\\Fonts\\msmincho.ttc",
-            "C:\\Windows\\Fonts\\msgothic.ttc", 
+            ("C:\\Windows\\Fonts\\YuGothM.ttc", "C:\\Windows\\Fonts\\YuGothB.ttc"),
+            ("C:\\Windows\\Fonts\\meiryo.ttc", "C:\\Windows\\Fonts\\meiryob.ttc"),
+            ("C:\\Windows\\Fonts\\msgothic.ttc", "C:\\Windows\\Fonts\\msgothic.ttc"), # Fallback to same font for bold
         ]
         
-        font_loaded = False
-        for font_path in font_candidates:
-            if os.path.exists(font_path):
+        self.font_loaded = False
+        for font_path_r, font_path_b in font_candidates:
+            if os.path.exists(font_path_r):
                 try:
-                    self.pdf.add_font("JPFont", "", font_path)
-                    self.pdf.set_font("JPFont", size=11) # Slightly smaller font
-                    font_loaded = True
-                    print(f"Loaded font: {font_path}")
+                    # Register Regular
+                    self.pdf.add_font("JPFont", style="", fname=font_path_r)
+                    
+                    # Register Bold (use Bold file if exists, else Regular)
+                    if os.path.exists(font_path_b):
+                        self.pdf.add_font("JPFont", style="B", fname=font_path_b)
+                        # Register Bold Italic (fallback to Bold)
+                        self.pdf.add_font("JPFont", style="BI", fname=font_path_b)
+                    else:
+                        self.pdf.add_font("JPFont", style="B", fname=font_path_r)
+                        self.pdf.add_font("JPFont", style="BI", fname=font_path_r)
+
+                    # Register Italic (fallback to Regular)
+                    self.pdf.add_font("JPFont", style="I", fname=font_path_r)
+
+                    self.pdf.set_font("JPFont", size=11)
+                    self.font_loaded = True
+                    print(f"Loaded font family: {font_path_r} (Bold: {font_path_b})")
                     break
                 except Exception as e:
-                    print(f"Failed to load {font_path}: {e}")
+                    print(f"Failed to load {font_path_r}: {e}")
         
-        if not font_loaded:
+        if not self.font_loaded:
             print("Warning: No suitable Japanese font found/loaded. Using Arial (Japanese characters may not display).")
-            self.pdf.set_font("Arial", size=12)
+            self.pdf.set_font("Arial", size=11)
 
-    def add_title(self, title):
-        self.pdf.set_font_size(16)
-        self.pdf.cell(0, 10, title, new_x="LMARGIN", new_y="NEXT", align='C')
-        self.pdf.ln(5)
-        self.pdf.set_font_size(11)
-
-    def add_section(self, title, content):
-        self.pdf.set_font_size(14)
-        # Check if bold font needs to be added or just use same font
-        self.pdf.cell(0, 10, title, new_x="LMARGIN", new_y="NEXT")
-        self.pdf.set_font_size(11)
-        self.pdf.multi_cell(0, 6, content)
-        self.pdf.ln(5)
-
-    def save(self):
-        self.pdf.output(self.output_path)
-        print(f"PDF saved to {self.output_path}")
+    def generate_from_markdown(self, markdown_content):
+        """
+        Converts markdown content to HTML and then writes it to PDF.
+        """
+        # Convert Markdown to HTML
+        # Enable commonly used extensions
+        html_content = markdown.markdown(markdown_content, extensions=['extra', 'tables', 'nl2br'])
+        
+        # Add a wrapper for styling if needed, though FPDF handles basic tags
+        # Ensuring the font is set for the HTML rendering context
+        if self.font_loaded:
+             self.pdf.set_font("JPFont", size=11)
+        
+        # Write HTML
+        try:
+            self.pdf.write_html(html_content)
+        except Exception as e:
+            print(f"Error writing HTML to PDF: {e}")
+            import traceback
+            traceback.print_exc()
+            return
+        
+        # Save
+        try:
+            self.pdf.output(self.output_path)
+            print(f"PDF saved to {self.output_path}")
+        except Exception as e:
+             print(f"Error saving PDF: {e}")
 
 def generate_report_from_markdown(md_content, output_exists_path):
     """
-    Parses a simple markdown report and generates a PDF.
+    Parses a simple markdown report and generates a PDF using HTML conversion.
     """
     generator = PDFGenerator(output_path=output_exists_path)
-    
-    # Simple markdown parser
-    lines = md_content.split('\n')
-    for line in lines:
-        try:
-            if line.startswith("# "):
-                generator.add_title(line[2:])
-            elif line.startswith("## "):
-                generator.add_section(line[3:], "")
-            elif line.startswith("### "):
-                # Subheader, treat as bold-ish line
-                generator.pdf.set_font_size(12)
-                generator.pdf.cell(0, 8, line[4:], new_x="LMARGIN", new_y="NEXT")
-                generator.pdf.set_font_size(11)
-            elif line.strip() == "":
-                continue
-            elif line.strip().startswith("- ") or line.strip().startswith("* "):
-                 # Use a simple hyphen instead of bullet to avoid font metric issues
-                 generator.pdf.multi_cell(180, 6, "  - " + line.strip()[2:])
-            else:
-                generator.pdf.multi_cell(180, 6, line)
-        except Exception as e:
-            print(f"Warning: Could not render line: '{line}'. Error: {e}")
-            
-    generator.save()
+    generator.generate_from_markdown(md_content)
 
 if __name__ == "__main__":
     # 1. Run the "Program" flow (Mock/Demo)
@@ -209,4 +211,3 @@ if __name__ == "__main__":
         generate_report_from_markdown(content, output_pdf_path)
     else:
         print(f"Error: Could not find report at {existing_report_path}")
-
