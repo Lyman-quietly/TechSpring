@@ -6,13 +6,13 @@ class TechResearcher:
         self.ddgs = DDGS()
         self.openai_client = openai_client
 
-    def step_1_broad_search(self, query="technology trends viral active discussion last week"):
-        print(f"Step 1: Broad Search for '{query}'...")
+    def perform_broad_search(self, query="technology trends viral active discussion last week"):
+        print(f"Broad Search for '{query}'...")
         results = self.ddgs.text(query, max_results=10)
         return results
 
-    def step_2_filter_topics(self, search_results):
-        print("Step 2: Filtering topics (using LLM: gpt-oss)...")
+    def filter_active_topics(self, search_results):
+        print("Filtering topics (using LLM: gpt-oss)...")
         if self.openai_client:
             try:
                 # Prepare a prompt for the LLM
@@ -47,8 +47,8 @@ class TechResearcher:
         ]
         return selected_topics
 
-    def step_3_deep_dive(self, topics):
-        print("Step 3: Deep Dive...")
+    def conduct_deep_dive(self, topics):
+        print("Conducting Deep Dive...")
         report_sections = []
         for topic in topics:
             print(f"  Researching: {topic['title']}...")

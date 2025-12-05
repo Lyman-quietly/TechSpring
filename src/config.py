@@ -9,6 +9,10 @@ class Config:
     PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     OUTPUT_DIR = os.path.join(PROJECT_ROOT, "report")
     
+    
+    # Paths
+    EXISTING_REPORT_PATH = r"C:\Users\lyman\.gemini\antigravity\brain\b0b07f77-05d8-42ae-bc4e-e7bf2fd8af61\research_report.md"
+
     # Fonts
     FONT_CANDIDATES = [
         ("C:\\Windows\\Fonts\\YuGothM.ttc", "C:\\Windows\\Fonts\\YuGothB.ttc"),

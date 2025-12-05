@@ -22,13 +22,11 @@ def main():
     researcher = TechResearcher(openai_client=openai_client)
     
     # For demo purposes, we do a broad search but skip full generation to reuse the artifact
-    results = researcher.step_1_broad_search()
-    topics = researcher.step_2_filter_topics(results)
+    results = researcher.perform_broad_search()
+    topics = researcher.filter_active_topics(results)
     
     # 2. Generate PDF from existing report artifact
     # In a real run, you would use data from step_3_deep_dive
-    
-    existing_report_path = r"C:\Users\lyman\.gemini\antigravity\brain\b0b07f77-05d8-42ae-bc4e-e7bf2fd8af61\research_report.md"
     
     if not os.path.exists(Config.OUTPUT_DIR):
         os.makedirs(Config.OUTPUT_DIR)
@@ -43,15 +41,15 @@ def main():
         output_pdf_path = os.path.join(Config.OUTPUT_DIR, f"{base_filename}_{counter}.pdf")
         counter += 1
     
-    print(f"\n--- Generating PDF from {existing_report_path} ---")
+    print(f"\n--- Generating PDF from {Config.EXISTING_REPORT_PATH} ---")
     
-    if os.path.exists(existing_report_path):
-        with open(existing_report_path, "r", encoding="utf-8") as f:
+    if os.path.exists(Config.EXISTING_REPORT_PATH):
+        with open(Config.EXISTING_REPORT_PATH, "r", encoding="utf-8") as f:
             content = f.read()
         
         generate_report_from_markdown(content, output_pdf_path)
     else:
-        print(f"Error: Could not find report at {existing_report_path}")
+        print(f"Error: Could not find report at {Config.EXISTING_REPORT_PATH}")
 
 if __name__ == "__main__":
     main()
