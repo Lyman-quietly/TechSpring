@@ -11,7 +11,7 @@ class Config:
     
     
     # Paths
-    EXISTING_REPORT_PATH = r"C:\Users\lyman\.gemini\antigravity\brain\b0b07f77-05d8-42ae-bc4e-e7bf2fd8af61\research_report.md"
+    EXISTING_REPORT_PATH = os.path.join(PROJECT_ROOT, "data", "research_report.md")
 
     # Fonts
     FONT_CANDIDATES = [
