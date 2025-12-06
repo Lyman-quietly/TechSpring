@@ -1,12 +1,38 @@
 import json
 from duckduckgo_search import DDGS
 
+# Plugin imports
+from src.plugins import NewsPlugin, AcademicPlugin, SNSPlugin
+
 class TechResearcher:
     def __init__(self, openai_client=None):
         self.ddgs = DDGS()
         self.openai_client = openai_client
+        # Initialize plugin registry
+        self.plugins = {}
+        self.load_plugins()
 
-    def perform_broad_search(self, query="technology trends viral active discussion last week"):
+    def load_plugins(self):
+        """Instantiate and register available data source plugins."""
+        self.plugins["news"] = NewsPlugin()
+        self.plugins["academic"] = AcademicPlugin()
+        self.plugins["sns"] = SNSPlugin()
+
+    def perform_broad_search(self, query="technology trends viral active discussion last week", source: str = None):
+        """Perform a broad search.
+        If `source` is specified, delegate to the corresponding plugin.
+        Otherwise, fall back to DuckDuckGo.
+        """
+        if source:
+            plugin = self.plugins.get(source)
+            if not plugin:
+                raise ValueError(f"Unknown source plugin: {source}")
+            if hasattr(plugin, "fetch"):
+                return plugin.fetch(query, max_results=10)
+            elif hasattr(plugin, "search"):
+                return plugin.search(query, max_results=10)
+            else:
+                raise AttributeError(f"Plugin {source} does not provide a fetch/search method")
         print(f"Broad Search for '{query}'...")
         results = self.ddgs.text(query, max_results=10)
         return results
@@ -86,3 +112,19 @@ class TechResearcher:
             
             report_sections.append({"title": topic['title'], "content": summary})
         return report_sections
+
+    def search_all_sources(self, query: str):
+        """Run the query against all configured plugins and aggregate results."""
+        aggregated = []
+        for name, plugin in self.plugins.items():
+            try:
+                if hasattr(plugin, "fetch"):
+                    results = plugin.fetch(query)
+                elif hasattr(plugin, "search"):
+                    results = plugin.search(query)
+                else:
+                    continue
+                aggregated.extend(results)
+            except Exception as e:
+                print(f"Plugin {name} error: {e}")
+        return aggregated
