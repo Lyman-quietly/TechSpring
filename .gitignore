@@ -6,3 +6,4 @@ report/
 *.log
 *.md
 !README.md
+models/gpt-oss-20b
