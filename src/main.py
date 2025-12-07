@@ -18,6 +18,10 @@ def main():
         from openai import OpenAI
         openai_client = OpenAI(api_key=Config.OPENAI_API_KEY)
     
+    if openai_client is None:
+        print("Error: OpenAI API key not found. Please set OPENAI_API_KEY in config.py.")
+        return
+
     # 1. Run the "Program" flow
     researcher = TechResearcher(openai_client=openai_client)
     
