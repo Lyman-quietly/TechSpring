@@ -3,6 +3,7 @@ from huggingface_hub import snapshot_download
 snapshot_download(
     repo_id="openai/gpt-oss-20b",
     local_dir="./gpt-oss-20b",
+    max_workers=1,
     force_download=False   # デフォルト。途中から再開される
 )
 
