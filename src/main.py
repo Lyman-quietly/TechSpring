@@ -23,7 +23,8 @@ def main():
         return
 
     # 1. Run the "Program" flow
-    researcher = TechResearcher(openai_client=openai_client)
+    # decide useing LLM model name
+    researcher = TechResearcher(model="deepseek-coder:6.7b")
     
     # For demo purposes, we do a broad search but skip full generation to reuse the artifact
     results = researcher.perform_broad_search()
