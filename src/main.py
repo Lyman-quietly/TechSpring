@@ -32,7 +32,9 @@ def main():
     
     # 2. Generate PDF from existing report artifact
     # In a real run, you would use data from step_3_deep_dive
-    
+    report_sections = researcher.conduct_deep_dive(topics=topics)
+    print(f"report_sections: {report_sections}")
+
     if not os.path.exists(Config.OUTPUT_DIR):
         os.makedirs(Config.OUTPUT_DIR)
         
