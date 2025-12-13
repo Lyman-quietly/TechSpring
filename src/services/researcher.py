@@ -98,7 +98,7 @@ class TechResearcher:
             print(f"  Researching: {topic['title']}...")
             results = self.ddgs.text(topic['query'] + " latest discussion opinions analysis", max_results=5)
             
-            if self.openai_client:
+            if ollama is not None:
                 try:
                     prompt = f"""
                     Synthesize the following search results into a concise technical summary for the topic '{topic['title']}'.
