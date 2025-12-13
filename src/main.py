@@ -12,15 +12,29 @@ from src.services.pdf_generator import generate_report_from_markdown
 def main():
     print("--- Starting Tech Research Automation Program (Modular) ---")
     
+    # Initialize use LLM to research tech trends and generate report
+    use_LLM_client = ""
     # Initialize OpenAI Client
     openai_client = None
     if Config.OPENAI_API_KEY:
         from openai import OpenAI
         openai_client = OpenAI(api_key=Config.OPENAI_API_KEY)
+        use_LLM_client = "OPENAI"
     
     if openai_client is None:
         print("Error: OpenAI API key not found. Please set OPENAI_API_KEY in config.py.")
-        return
+        use_LLM_client = ""
+        
+    # Initialize DeepSeekAI Client
+    deepseek_client = None
+    if Config.DEEPAI_API_KEY:  # Assuming you have a DEEPAI_API_KEY in your config file
+        from deepseek_ai import DeepSeekAI
+        deepseek_client = DeepSeekAI(api_key=Config.DEEPAI_API_KEY)
+        use_LLM_client = "deepseek"
+
+    if deepseek_client is None:
+        print("Error: deepseek API key not found. Please set DEEPAI_API_KEY in config.py.")
+        use_LLM_client = ""
 
     # 1. Run the "Program" flow
     researcher = TechResearcher(openai_client=openai_client)
