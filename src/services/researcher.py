@@ -43,11 +43,24 @@ class TechResearcher:
         if ollama is not None:   # Check if Ollama ChatCompletion API is available
             try:
                 prompt = f"""
-                Analyze the following search results and identify 3 distinct technology topics that are currently generating active debate or controversy.
-                Return a JSON list of objects with 'title' and 'query' keys.
-                        
-                Search Results:
+                ### for analyze data
                 {json.dumps(search_results, indent=2)}
+                """
+                prompt += """
+                ### To Do
+                Identify three distinct technical topics currently sparking active debate or controversy from the text in the data analysis section.
+
+                Return a JSON list of objects with 'title' and 'query' keys.
+                Do not include any explanation, only return JSON.
+
+                ## Output format
+                {
+                "topics": [
+                    {"title": "...", "query": "..."},
+                    {"title": "...", "query": "..."},
+                    {"title": "...", "query": "..."}
+                ]
+                }
                 """
                 response = ollama.chat(
                     model=self.model,
@@ -60,6 +73,7 @@ class TechResearcher:
                 # 返ってきたテキストをJSONとしてパース
                 content = response['message']['content']
                 selected_topics = json.loads(content)['topics']  # Assuming LLM returns wrapped json
+                print(f"selected_topics: {selected_topics}")
                 return selected_topics
 
             except Exception as e:

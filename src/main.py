@@ -24,7 +24,7 @@ def main():
 
     # 1. Run the "Program" flow
     # decide useing LLM model name
-    researcher = TechResearcher(model="deepseek-coder:6.7b")
+    researcher = TechResearcher(model=Config.model)
     
     # For demo purposes, we do a broad search but skip full generation to reuse the artifact
     results = researcher.perform_broad_search()
