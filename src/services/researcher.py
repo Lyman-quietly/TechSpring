@@ -111,14 +111,14 @@ class TechResearcher:
                     {json.dumps(results, indent=2)}
                     """
                     
-                    response = self.openai_client.chat.completions.create(
-                        model="gpt-oss",
+                    response = ollama.chat(
+                        model=self.model,
                         messages=[
-                            {"role": "system", "content": "You are a technical research assistant."},
+                            {"role": "system", "content": "You are a helpful tech researcher."},
                             {"role": "user", "content": prompt}
-                        ],
+                        ]
                     )
-                    summary = response.choices[0].message.content
+                    summary = response['message']['content']
                 except Exception as e:
                     print(f"  LLM Error: {e}")
                     summary = "Error generating summary."
