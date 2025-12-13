@@ -40,7 +40,7 @@ class TechResearcher:
 
     def filter_active_topics(self, search_results):
         # Prepare a prompt for the LLM
-        if ollama.ChatCompletion is not None:   # Check if Ollama ChatCompletion API is available
+        if ollama is not None:   # Check if Ollama ChatCompletion API is available
             try:
                 prompt = f"""
                 Analyze the following search results and identify 3 distinct technology topics that are currently generating active debate or controversy.
@@ -49,14 +49,23 @@ class TechResearcher:
                 Search Results:
                 {json.dumps(search_results, indent=2)}
                 """
-                response = ollama.ChatCompletion(model=self.model).generate(prompt)  # Use Ollama ChatCompletion API
+                response = ollama.chat(
+                    model=self.model,
+                    messages=[
+                        {"role": "system", "content": "You are a helpful tech researcher."},
+                        {"role": "user", "content": prompt}
+                    ]
+                )
+
                 # 返ってきたテキストをJSONとしてパース
-                # Ollamaは直接文字列を返す
-                selected_topics = json.loads(response)['topics']  # Assuming LLM returns wrapped json
+                content = response['message']['content']
+                selected_topics = json.loads(content)['topics']  # Assuming LLM returns wrapped json
                 return selected_topics
-            
+
             except Exception as e:
                 print(f"  LLM Error: {e}")
+                print(type(content))
+                print(content)
                 summary = "Error generating summary."
         else:
             # Fallback / Demo Logic
