@@ -101,7 +101,7 @@ class TechResearcher:
             if ollama is not None:
                 try:
                     prompt = f"""
-                    Synthesize the following search results into a concise technical summary for the topic '{topic['title']}'.
+                    Please consolidate the following search results and create a concise technical summary in Markdown format regarding the topic '{topic['title']}'.
                     Focus on:
                     1. What is the core technology?
                     2. Why is it controversial or actively discussed right now?
